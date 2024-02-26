@@ -9,7 +9,6 @@ from rest_framework.views import APIView
 from rest_framework_api_key.permissions import HasAPIKey
 
 
-
 class FileDownloadView(APIView):
     model_collection = None
     http_method_names = ['get']
@@ -21,6 +20,9 @@ class FileDownloadView(APIView):
         file = instance.__getattribute__(request.query_params['field'])
 
         if os.getenv("KUBERNETES_ENGINE", "NONE") == "NONE":
+            # TODO, not compatible with production environment
+            file_url = file.url if not file.url.startswith('/') else file.url[1:]
+        else:
             file_url = file.url
 
         if os.getenv("STORAGE_TYPE") == "SHAREPOINT":
