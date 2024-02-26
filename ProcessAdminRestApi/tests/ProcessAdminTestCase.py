@@ -12,6 +12,7 @@ from unittest import TestCase
 import json
 from generic_app.models import *
 from pathlib import Path
+
 class ProcessAdminTestCase(TestCase):
 
     def replace_tagged_parameters(self, object_parameters):
@@ -29,14 +30,14 @@ class ProcessAdminTestCase(TestCase):
 
     test_path = None
 
-    def setUpCloudStorage(self) -> None:
+    def setUpCloudStorage(self, generic_app_models) -> None:
         from datetime import datetime
         self.t0 = datetime.now()
         One.frontendId = "TestCase"
         self.tagged_objects = {}
         test_data = self.get_test_data()
         for object in test_data:
-            klass = globals()[object['class']]
+            klass = generic_app_models[object['class']]
             action = object['action']
             tag = object['tag'] if 'tag' in object else 'instance'
             if action == 'create':
@@ -80,14 +81,14 @@ class ProcessAdminTestCase(TestCase):
             elif action == 'delete':
                 klass.objects.filter(**object['filter_parameters']).delete()
 
-    def setUp(self) -> None:
+    def setUp(self, generic_app_models) -> None:
         from datetime import datetime
         self.t0 = datetime.now()
         One.frontendId = "TestCase"
         self.tagged_objects = {}
         test_data = self.get_test_data()
         for object in test_data:
-            klass = globals()[object['class']]
+            klass = generic_app_models[object['class']]
             action = object['action']
             tag = object['tag'] if 'tag' in object else 'instance'
             if action == 'create':
@@ -130,6 +131,7 @@ class ProcessAdminTestCase(TestCase):
             clean_test_path = str(path) + os.sep + "test_data.json"
         else:
             clean_test_path = self.test_path.replace('/', os.sep)
+            clean_test_path = str(pathlib.Path(__file__).resolve().parent.parent.parent) + os.sep + clean_test_path
         test_data = self.get_test_data_from_path(clean_test_path)
         return test_data
 
@@ -140,6 +142,8 @@ class ProcessAdminTestCase(TestCase):
             for index, object in enumerate(test_data):
                 if "subprocess" in object:
                     subprocess_path = object['subprocess'].replace('/', os.sep)
+                    subprocess_path = str(
+                        pathlib.Path(__file__).resolve().parent.parent.parent) + os.sep + subprocess_path
                     sublist = self.get_test_data_from_path(subprocess_path)
                     test_data[index] = sublist
         flat_list = []
@@ -151,19 +155,19 @@ class ProcessAdminTestCase(TestCase):
         return flat_list
 
 
-    def get_classes(self):
+    def get_classes(self, generic_app_models):
         test_data = self.get_test_data()
-        return set([globals()[object['class']] for object in test_data])
+        return set([generic_app_models[object['class']] for object in test_data])
 
-    def check_if_all_models_are_empty(self):
-        for klass in self.get_classes():
+    def check_if_all_models_are_empty(self, generic_app_models):
+        for klass in self.get_classes(generic_app_models):
             if klass.objects.all().count() > 0:
                 return False
         return True
 
-    def get_list_of_non_empty_models(self):
+    def get_list_of_non_empty_models(self, generic_app_models):
         count_of_objects_in_non_empty_models = {}
-        for klass in self.get_classes():
+        for klass in self.get_classes(generic_app_models):
             c = klass.objects.all().count()
             if c > 0:
                 count_of_objects_in_non_empty_models[str(klass)]=c
