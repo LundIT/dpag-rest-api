@@ -50,7 +50,7 @@ class ProcessAdminTestCase(TestCase):
                             upload_to += "/"
                         path = f"{upload_to}{os.path.basename(self.tagged_objects[tag].__dict__[parameter])}"
                         file_name = os.path.basename(self.tagged_objects[tag].__dict__[parameter])
-                        f = open(f"{os.getcwd()}/generic_app/{self.tagged_objects[tag].__dict__[parameter]}", "rb")
+                        f = open(f"{os.getcwd()}/{self.tagged_objects[tag].__dict__[parameter]}", "rb")
                         file_content = f.read()
                         self.tagged_objects[tag].__dict__[parameter] = f"{upload_to}{file_name}"
                         default_storage.save(path, content=File(io.BytesIO(file_content), name=f"{file_name}"))
@@ -68,7 +68,7 @@ class ProcessAdminTestCase(TestCase):
                                 upload_to += "/"
                             path = f"{upload_to}{os.path.basename(object['parameters'][key])}"
                             file_name = os.path.basename(object['parameters'][key])
-                            f = open(f"{os.getcwd()}/generic_app/{object['parameters'][key]}", "rb")
+                            f = open(f"{os.getcwd()}/{object['parameters'][key]}", "rb")
                             file_content = f.read()
                             default_storage.save(path, content=File(io.BytesIO(file_content), name=f"{file_name}"))
                             setattr(self.tagged_objects[tag], key, f"{upload_to}{file_name}")
