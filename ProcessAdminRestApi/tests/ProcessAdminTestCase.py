@@ -131,7 +131,7 @@ class ProcessAdminTestCase(TestCase):
             clean_test_path = str(path) + os.sep + "test_data.json"
         else:
             clean_test_path = self.test_path.replace('/', os.sep)
-            clean_test_path = str(pathlib.Path(__file__).resolve().parent.parent.parent) + os.sep + clean_test_path
+            clean_test_path = os.getenv("PROJECT_ROOT") + os.sep + clean_test_path
         test_data = self.get_test_data_from_path(clean_test_path)
         return test_data
 
@@ -142,8 +142,7 @@ class ProcessAdminTestCase(TestCase):
             for index, object in enumerate(test_data):
                 if "subprocess" in object:
                     subprocess_path = object['subprocess'].replace('/', os.sep)
-                    subprocess_path = str(
-                        pathlib.Path(__file__).resolve().parent.parent.parent) + os.sep + subprocess_path
+                    subprocess_path = os.getenv("PROJECT_ROOT") + os.sep + subprocess_path
                     sublist = self.get_test_data_from_path(subprocess_path)
                     test_data[index] = sublist
         flat_list = []
